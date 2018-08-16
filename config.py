@@ -25,7 +25,7 @@ test_filelist_file = 'data/wider_face_split/wider_face_test_filelist.txt'
 num_train_samples = 12880
 num_valid_samples = 3226
 verbose = 1
-batch_size = 64
+batch_size = 32
 num_epochs = 1000
 patience = 50
 
