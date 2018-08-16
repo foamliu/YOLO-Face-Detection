@@ -2,8 +2,8 @@ import keras.backend as K
 import numpy as np
 import tensorflow as tf
 
-from config import image_size, grid_h, grid_w, grid_size, class_weights, anchors, num_box, epsilon
-from config import lambda_coord, lambda_noobj, lambda_class, lambda_obj
+from config import image_size, grid_h, grid_w, grid_size, anchors, num_box, epsilon
+from config import lambda_coord, lambda_noobj, lambda_obj
 
 
 def yolo_loss(y_true, y_pred):
@@ -19,10 +19,6 @@ def yolo_loss(y_true, y_pred):
     # [None, 13, 13, 5]
     coord_mask = tf.zeros(mask_shape)
     conf_mask = tf.zeros(mask_shape)
-    class_mask = tf.zeros(mask_shape)
-
-    seen = tf.Variable(0.)
-    total_recall = tf.Variable(0.)
 
     """
     Adjust ground truth
@@ -36,9 +32,6 @@ def yolo_loss(y_true, y_pred):
     # adjust w and h
     # [None, 13, 13, 5, 2]
     box_wh = y_true[..., 3:5]  # number of cells across, horizontally and vertically
-    # adjust class probabilities
-    # [None, 13, 13, 5]
-    box_class = tf.argmax(y_true[..., 5:], -1)
 
     box_wh_half = box_wh / 2.
     box_mins = box_xy - box_wh_half
@@ -56,9 +49,6 @@ def yolo_loss(y_true, y_pred):
     # adjust w and h
     # [None, 13, 13, 5, 2]
     box_wh_hat = tf.exp(y_pred[..., 3:5]) * np.reshape(anchors, [1, 1, 1, num_box, 2])
-    # adjust class probabilities
-    # [None, 13, 13, 5, 80]
-    box_class_hat = y_pred[..., 5:]
 
     box_wh_half_hat = box_wh_hat / 2.
     box_mins_hat = box_xy_hat - box_wh_half_hat
@@ -98,13 +88,10 @@ def yolo_loss(y_true, y_pred):
     conf_mask = conf_mask + tf.to_float(best_ious < 0.6) * (1 - y_true[..., 0]) * lambda_noobj
     # penalize the confidence of the boxes, which are responsible for corresponding ground truth box
     conf_mask = conf_mask + y_true[..., 0] * lambda_obj
-    # [None, 13, 13, 5]
-    class_mask = y_true[..., 0] * tf.gather(class_weights, box_class) * lambda_class
 
     # [None, 13, 13, 5] -> integer
     nb_coord_box = tf.reduce_sum(tf.to_float(coord_mask > 0.0))
     nb_conf_box = tf.reduce_sum(tf.to_float(conf_mask > 0.0))
-    nb_class_box = tf.reduce_sum(tf.to_float(class_mask > 0.0))
 
     # [None, 13, 13, 5, 2]
     loss_xy = tf.reduce_sum(tf.square(box_xy - box_xy_hat) * coord_mask) / (nb_coord_box + epsilon)
@@ -112,11 +99,8 @@ def yolo_loss(y_true, y_pred):
     loss_wh = tf.reduce_sum(tf.square(box_wh - box_wh_hat) * coord_mask) / (nb_coord_box + epsilon)
     # [None, 13, 13, 5]
     loss_conf = tf.reduce_sum(tf.square(box_conf - box_conf_hat) * conf_mask) / (nb_conf_box + epsilon)
-    # [None, 13, 13, 5]
-    loss_class = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=box_class, logits=box_class_hat)
-    loss_class = tf.reduce_sum(loss_class * class_mask) / (nb_class_box + epsilon)
 
-    loss = loss_xy + loss_wh + loss_conf + loss_class
+    loss = loss_xy + loss_wh + loss_conf
 
     nb_true_box = tf.reduce_sum(y_true[..., 0])
     nb_pred_box = tf.reduce_sum(tf.to_float(box_conf > 0.5) * tf.to_float(box_conf_hat > 0.3))
@@ -131,7 +115,6 @@ def yolo_loss(y_true, y_pred):
     loss = tf.Print(loss, [loss_xy], first_n=10, message='Loss XY \t', summarize=1000)
     loss = tf.Print(loss, [loss_wh], first_n=10, message='Loss WH \t', summarize=1000)
     loss = tf.Print(loss, [loss_conf], first_n=10, message='Loss Conf \t', summarize=1000)
-    loss = tf.Print(loss, [loss_class], first_n=10, message='Loss Class \t', summarize=1000)
     loss = tf.Print(loss, [loss], first_n=10, message='Total Loss \t', summarize=1000)
     loss = tf.Print(loss, [current_recall], first_n=10, message='Current Recall \t', summarize=1000)
     # loss = tf.Print(loss, [total_recall / seen], first_n=10, message='Average Recall \t', summarize=1000)
