@@ -9,7 +9,7 @@ epsilon = 1e-6
 
 score_threshold = 0.5  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
 iou_threshold = 0.4  # real value, "intersection over union" threshold used for NMS filtering
-anchors = [0.10, 0.18, 0.23, 0.42, 0.50, 0.89, 1.16, 1.91, 3.38, 4.90]
+anchors = [0.19,0.35, 1.12,1.82]
 
 labels = ['face']
 num_classes = len(labels)
