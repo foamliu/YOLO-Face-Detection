@@ -2,7 +2,7 @@ import keras.backend as K
 import numpy as np
 import tensorflow as tf
 
-from config import image_size, grid_h, grid_w, grid_size, class_weights, anchors, batch_size, num_box, epsilon
+from config import image_size, grid_h, grid_w, grid_size, class_weights, anchors, num_box, epsilon
 from config import lambda_coord, lambda_noobj, lambda_class, lambda_obj
 
 
@@ -32,10 +32,10 @@ def yolo_loss(y_true, y_pred):
     box_conf = y_true[..., 0]
     # adjust x and y
     # [None, 13, 13, 5, 2]
-    box_xy = y_true[..., 1:3]   # relative position to the containing cell
+    box_xy = y_true[..., 1:3]  # relative position to the containing cell
     # adjust w and h
     # [None, 13, 13, 5, 2]
-    box_wh = y_true[..., 3:5]   # number of cells across, horizontally and vertically
+    box_wh = y_true[..., 3:5]  # number of cells across, horizontally and vertically
     # adjust class probabilities
     # [None, 13, 13, 5]
     box_class = tf.argmax(y_true[..., 5:], -1)
@@ -64,7 +64,6 @@ def yolo_loss(y_true, y_pred):
     box_mins_hat = box_xy_hat - box_wh_half_hat
     box_maxes_hat = box_xy_hat + box_wh_half_hat
 
-
     # [None, 13, 13, 5, 2]
     intersect_mins = tf.maximum(box_mins_hat, box_mins)
     intersect_maxes = tf.minimum(box_maxes_hat, box_maxes)
@@ -81,7 +80,6 @@ def yolo_loss(y_true, y_pred):
 
     # [None, 13, 13, 5]
     box_conf = iou_scores * box_conf
-
 
     """
         Determine the masks

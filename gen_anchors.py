@@ -4,7 +4,7 @@ import random
 import cv2 as cv
 import numpy as np
 
-from config import grid_h, grid_w, train_annot_file, train_image_folder
+from config import grid_h, grid_w, train_annot_file, train_image_folder, num_box
 from utils import parse_annot
 
 
@@ -94,7 +94,7 @@ def run_kmeans(ann_dims, anchor_num):
 
 
 if __name__ == '__main__':
-    num_anchors = 5
+    num_anchors = num_box
 
     annot_file = train_annot_file
     annots = parse_annot(annot_file)
