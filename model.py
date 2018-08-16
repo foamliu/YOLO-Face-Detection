@@ -116,7 +116,7 @@ def build_model():
     x = LeakyReLU(alpha=0.1)(x)
     # Layer 23
     x = Conv2D(num_box * (4 + 1 + num_classes), (1, 1), strides=(1, 1), padding='same', name='conv_23')(x)
-    output = Reshape((grid_h, grid_w, num_box, 4 + 1 + num_classes))(x)
+    output = Reshape(target_shape=(grid_h, grid_w, num_box, 4 + 1 + num_classes))(x)
     model = Model(input_image, output)
     ensure_yolo_weights()
     load_weights(model, 'models/yolo.weights')
