@@ -90,8 +90,8 @@ class DataGenSequence(Sequence):
             original_shape = image_bgr.shape[:2]
             image_bgr = cv.resize(image_bgr, (image_h, image_w))
             image_rgb = image_bgr[:, :, ::-1]
-            if self.usage == 'train':
-                image_rgb = aug_pipe.augment_image(image_rgb)
+            #if self.usage == 'train':
+            #    image_rgb = aug_pipe.augment_image(image_rgb)
 
             batch_x[i_batch, :, :] = image_rgb / 255.
             batch_y[i_batch, :, :] = get_ground_truth(annot, original_shape)

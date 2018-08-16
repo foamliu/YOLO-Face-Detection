@@ -28,9 +28,9 @@ aug_pipe = iaa.Sequential(
                    [
                        # sometimes(iaa.Superpixels(p_replace=(0, 1.0), n_segments=(20, 200))), # convert images into their superpixel representation
                        iaa.OneOf([
-                           iaa.GaussianBlur((0, 3.0)),  # blur images with a sigma between 0 and 3.0
-                           iaa.AverageBlur(k=(2, 7)),  # blur image using local means with kernel sizes between 2 and 7
-                           iaa.MedianBlur(k=(3, 11)),
+                           iaa.GaussianBlur((0, 0.5)),  # blur images with a sigma between 0 and 3.0
+                           iaa.AverageBlur(k=(2, 3)),  # blur image using local means with kernel sizes between 2 and 3
+                           iaa.MedianBlur(k=(3, 5)),
                            # blur image using local medians with kernel sizes between 2 and 7
                        ]),
                        iaa.Sharpen(alpha=(0, 1.0), lightness=(0.75, 1.5)),  # sharpen images
