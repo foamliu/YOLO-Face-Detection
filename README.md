@@ -54,3 +54,21 @@ $ python demo.py
 |![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/2_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/7_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/12_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/17_out.png)|
 |![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/3_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/8_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/13_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/18_out.png)|
 |![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/4_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/9_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/14_out.png)|![image](https://github.com/foamliu/YOLO-Face-Detection/raw/master/images/19_out.png)|
+
+### 数据增强
+
+```bash
+$ python augmentor.py
+```
+|before|after|
+|---|---|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_0.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_0.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_1.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_1.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_2.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_2.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_3.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_3.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_4.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_4.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_5.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_5.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_6.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_6.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_7.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_7.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_8.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_8.png)|
+|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_before_9.png)|![image](https://github.com/foamliu/FaceNet/raw/master/images/imgaug_after_9.png)|
