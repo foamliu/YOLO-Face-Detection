@@ -8,7 +8,7 @@ from config import batch_size, image_h, image_w, grid_h, grid_w, num_classes, nu
     train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors
 from utils import BoundBox, bbox_iou, parse_annot
 
-_anchors = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
+anchor_boxes = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
 
 
 def get_ground_truth(annot, original_shape):
@@ -40,8 +40,8 @@ def get_ground_truth(annot, original_shape):
                                center_w,
                                center_h)
 
-        for i in range(len(_anchors)):
-            anchor = _anchors[i]
+        for i in range(len(anchor_boxes)):
+            anchor = anchor_boxes[i]
             iou = bbox_iou(shifted_box, anchor)
 
             if max_iou < iou:
