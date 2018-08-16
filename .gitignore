@@ -1,1 +1,5 @@
 .idea
+logs/
+models/
+__pycache__/
+data/
