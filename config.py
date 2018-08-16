@@ -4,12 +4,12 @@ image_h = image_w = image_size = 448
 grid_h = grid_w = 14
 num_channels = 3
 grid_size = 32
-num_box = 2
+num_box = 5
 epsilon = 1e-6
 
 score_threshold = 0.5  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
 iou_threshold = 0.4  # real value, "intersection over union" threshold used for NMS filtering
-anchors = [0.19,0.35, 1.12,1.82]
+anchors = [0.10, 0.18, 0.23, 0.42, 0.50, 0.89, 1.16, 1.91, 3.38, 4.90]
 
 labels = ['face']
 num_classes = len(labels)
