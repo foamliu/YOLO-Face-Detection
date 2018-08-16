@@ -7,7 +7,7 @@ from config import lambda_coord, lambda_noobj, lambda_class, lambda_obj
 
 
 def yolo_loss(y_true, y_pred):
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     mask_shape = tf.shape(y_true)[:4]
     length = mask_shape[0]
 
@@ -16,7 +16,7 @@ def yolo_loss(y_true, y_pred):
 
     cell_grid = tf.tile(tf.concat([cell_x, cell_y], -1), [length, 1, 1, num_box, 1])
 
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     coord_mask = tf.zeros(mask_shape)
     conf_mask = tf.zeros(mask_shape)
     class_mask = tf.zeros(mask_shape)
@@ -28,16 +28,16 @@ def yolo_loss(y_true, y_pred):
     Adjust ground truth
     """
     # adjust confidence
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     box_conf = y_true[..., 0]
     # adjust x and y
-    # [None, 13, 13, 2, 2]
+    # [None, 13, 13, 5, 2]
     box_xy = y_true[..., 1:3]  # relative position to the containing cell
     # adjust w and h
-    # [None, 13, 13, 2, 2]
-    box_wh = y_true[..., 3:2]  # number of cells across, horizontally and vertically
+    # [None, 13, 13, 5, 2]
+    box_wh = y_true[..., 3:5]  # number of cells across, horizontally and vertically
     # adjust class probabilities
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     box_class = tf.argmax(y_true[..., 5:], -1)
 
     box_wh_half = box_wh / 2.
@@ -48,71 +48,71 @@ def yolo_loss(y_true, y_pred):
         Adjust prediction
     """
     # adjust confidence
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     box_conf_hat = tf.sigmoid(y_pred[..., 0])
     # adjust x and y
-    # [None, 13, 13, 2, 2]
+    # [None, 13, 13, 5, 2]
     box_xy_hat = tf.sigmoid(y_pred[..., 1:3]) + cell_grid
     # adjust w and h
-    # [None, 13, 13, 2, 2]
+    # [None, 13, 13, 5, 2]
     box_wh_hat = tf.exp(y_pred[..., 3:5]) * np.reshape(anchors, [1, 1, 1, num_box, 2])
     # adjust class probabilities
-    # [None, 13, 13, 2, 80]
+    # [None, 13, 13, 5, 80]
     box_class_hat = y_pred[..., 5:]
 
     box_wh_half_hat = box_wh_hat / 2.
     box_mins_hat = box_xy_hat - box_wh_half_hat
     box_maxes_hat = box_xy_hat + box_wh_half_hat
 
-    # [None, 13, 13, 2, 2]
+    # [None, 13, 13, 5, 2]
     intersect_mins = tf.maximum(box_mins_hat, box_mins)
     intersect_maxes = tf.minimum(box_maxes_hat, box_maxes)
     intersect_wh = tf.maximum(intersect_maxes - intersect_mins, 0.)
     intersect_areas = intersect_wh[..., 0] * intersect_wh[..., 1]
 
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     true_areas = box_wh[..., 0] * box_wh[..., 1]
     pred_areas = box_wh_hat[..., 0] * box_wh_hat[..., 1]
 
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     union_areas = pred_areas + true_areas - intersect_areas
     iou_scores = tf.truediv(intersect_areas, union_areas + 1e-6)
 
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     box_conf = iou_scores * box_conf
 
     """
         Determine the masks
     """
     # the position of the ground truth boxes (the predictors)
-    # [None, 13, 13, 2, 1]
+    # [None, 13, 13, 5, 1]
     coord_mask = K.expand_dims(y_true[..., 0], axis=-1) * lambda_coord
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     best_ious = iou_scores
 
     """
         confidence mask: penelize predictors + penalize boxes with low IOU
         penalize the confidence of the boxes, which have IOU with some ground truth box < 0.6
     """
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     conf_mask = conf_mask + tf.to_float(best_ious < 0.6) * (1 - y_true[..., 0]) * lambda_noobj
     # penalize the confidence of the boxes, which are responsible for corresponding ground truth box
     conf_mask = conf_mask + y_true[..., 0] * lambda_obj
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5]
     class_mask = y_true[..., 0] * tf.gather(class_weights, box_class) * lambda_class
 
-    # [None, 13, 13, 2] -> integer
+    # [None, 13, 13, 5] -> integer
     nb_coord_box = tf.reduce_sum(tf.to_float(coord_mask > 0.0))
     nb_conf_box = tf.reduce_sum(tf.to_float(conf_mask > 0.0))
     nb_class_box = tf.reduce_sum(tf.to_float(class_mask > 0.0))
 
-    # [None, 13, 13, 2, 2]
-    loss_xy = tf.reduce_sum(tf.square(box_xy - box_xy_hat) * coord_mask) / (nb_coord_box + epsilon) / 2.
-    # [None, 13, 13, 2, 2]
-    loss_wh = tf.reduce_sum(tf.square(box_wh - box_wh_hat) * coord_mask) / (nb_coord_box + epsilon) / 2.
-    # [None, 13, 13, 2]
-    loss_conf = tf.reduce_sum(tf.square(box_conf - box_conf_hat) * conf_mask) / (nb_conf_box + epsilon) / 2.
-    # [None, 13, 13, 2]
+    # [None, 13, 13, 5, 2]
+    loss_xy = tf.reduce_sum(tf.square(box_xy - box_xy_hat) * coord_mask) / (nb_coord_box + epsilon)
+    # [None, 13, 13, 5, 2]
+    loss_wh = tf.reduce_sum(tf.square(box_wh - box_wh_hat) * coord_mask) / (nb_coord_box + epsilon)
+    # [None, 13, 13, 5]
+    loss_conf = tf.reduce_sum(tf.square(box_conf - box_conf_hat) * conf_mask) / (nb_conf_box + epsilon)
+    # [None, 13, 13, 5]
     loss_class = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=box_class, logits=box_class_hat)
     loss_class = tf.reduce_sum(loss_class * class_mask) / (nb_class_box + epsilon)
 
