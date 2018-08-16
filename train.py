@@ -5,10 +5,10 @@ import tensorflow as tf
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 
-from config import patience, num_epochs, batch_size
+from config import patience, num_epochs, batch_size, num_train_samples, num_valid_samples
 from data_generator import train_gen, valid_gen
 from model import build_model
-from utils import get_example_numbers, get_available_gpus, ensure_folder, get_smallest_loss, get_best_model
+from utils import get_available_gpus, ensure_folder, get_smallest_loss, get_best_model
 from yolo_utils import yolo_loss
 
 if __name__ == '__main__':
@@ -65,7 +65,6 @@ if __name__ == '__main__':
     callbacks = [tensor_board, model_checkpoint, early_stop, reduce_lr]
 
     ensure_folder('models')
-    num_train_samples, num_valid_samples = get_example_numbers()
     # Start Fine-tuning
     new_model.fit_generator(train_gen(),
                             steps_per_epoch=num_train_samples // batch_size,

@@ -35,13 +35,35 @@ def space_to_depth_x2(x):
     return tf.space_to_depth(x, block_size=2)
 
 
-def get_example_numbers():
-    from pycocotools.coco import COCO
-    coco = COCO(train_annot_file)
-    num_train_samples = len(coco.getImgIds())
-    coco = COCO(valid_annot_file)
-    num_valid_samples = len(coco.getImgIds())
-    return num_train_samples, num_valid_samples
+def parse_annot(usage):
+    if usage == 'train':
+        annot_file = train_annot_file
+    else:
+        annot_file = valid_annot_file
+
+    with open(annot_file, 'r') as file:
+        lines = file.readlines()
+
+    annots = []
+    i = 0
+    while True:
+        filename = lines[i].strip()
+        num_bbox = int(lines[i + 1].strip())
+        bboxes = []
+        for j in range(num_bbox):
+            tokens = lines[i + j + 2].strip().split()
+            x1 = int(tokens[0])
+            y1 = int(tokens[1])
+            w = int(tokens[2])
+            h = int(tokens[3])
+            bboxes.append((x1, y1, w, h))
+        annots.append({'filename': filename, 'bboxes': bboxes})
+        i = i + num_bbox + 2
+        if len(lines) - i < 3:
+            break
+
+    print('parsed {} images'.format(len(annots)))
+    return annots
 
 
 def draw_boxes(image, boxes, labels):
@@ -55,7 +77,8 @@ def draw_boxes(image, boxes, labels):
 
         s = labels[box.get_label()] + ' ' + str(box.get_score())
         cv.rectangle(image, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-        cv.putText(image, s, (xmin + 1, ymin + 1), cv.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness=2, lineType=cv.LINE_AA)
+        cv.putText(image, s, (xmin + 1, ymin + 1), cv.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness=2,
+                   lineType=cv.LINE_AA)
         cv.putText(image, s, (xmin, ymin), cv.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), lineType=cv.LINE_AA)
     return image
 
