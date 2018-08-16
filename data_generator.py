@@ -23,8 +23,10 @@ def get_ground_truth(annot, original_shape):
         width = 1.0 * width * image_w / original_width
         height = 1.0 * height * image_h / original_height
         center_x = xmin + width / 2.
+        center_x = np.clip(center_x, 0, image_w - 0.01)
         center_x = center_x / float(image_w / grid_w)
         center_y = ymin + height / 2.
+        center_y = np.clip(center_y, 0, image_h - 0.01)
         center_y = center_y / float(image_h / grid_h)
         cell_x = int(np.floor(center_x))
         cell_y = int(np.floor(center_y))
