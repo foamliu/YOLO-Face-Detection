@@ -65,7 +65,7 @@ aug_pipe = iaa.Sequential(
 if __name__ == '__main__':
     import random
     import os
-    from config import image_folder, img_size, test_image_folder, test_filelist_file
+    from config import test_image_folder, test_filelist_file
     import cv2 as cv
 
     test_path = test_image_folder
