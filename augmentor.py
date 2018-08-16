@@ -65,7 +65,7 @@ aug_pipe = iaa.Sequential(
 if __name__ == '__main__':
     import random
     import os
-    from config import test_image_folder, test_filelist_file
+    from config import image_h, image_w, test_image_folder, test_filelist_file
     import cv2 as cv
 
     test_path = test_image_folder
@@ -82,9 +82,9 @@ if __name__ == '__main__':
 
     for i, sample in enumerate(samples):
         image_name = sample
-        filename = os.path.join(image_folder, image_name)
+        filename = os.path.join(test_image_folder, image_name)
         image_bgr = cv.imread(filename)
-        image_bgr = cv.resize(image_bgr, (img_size, img_size), cv.INTER_CUBIC)
+        image_bgr = cv.resize(image_bgr, (image_h, image_w), cv.INTER_CUBIC)
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_bgr)
         image_bgr = aug_pipe.augment_image(image_bgr)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image_bgr)
