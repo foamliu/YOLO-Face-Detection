@@ -1,7 +1,7 @@
 import numpy as np
 
-image_h = image_w = image_size = 448
-grid_h = grid_w = 14
+image_h = image_w = image_size = 608
+grid_h = grid_w = 19
 num_channels = 3
 grid_size = 32
 num_box = 5
