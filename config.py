@@ -22,6 +22,7 @@ valid_image_folder = 'data/WIDER_val/images'
 test_image_folder = 'data/WIDER_test/images'
 train_annot_file = 'data/wider_face_split/wider_face_train_bbx_gt.txt'
 valid_annot_file = 'data/wider_face_split/wider_face_val_bbx_gt.txt'
+test_filelist_file = 'data/wider_face_split/wider_face_test_filelist.txt'
 
 num_train_samples = 12880
 num_valid_samples = 3226
