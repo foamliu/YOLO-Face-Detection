@@ -35,12 +35,7 @@ def space_to_depth_x2(x):
     return tf.space_to_depth(x, block_size=2)
 
 
-def parse_annot(usage):
-    if usage == 'train':
-        annot_file = train_annot_file
-    else:
-        annot_file = valid_annot_file
-
+def parse_annot(annot_file):
     with open(annot_file, 'r') as file:
         lines = file.readlines()
 
