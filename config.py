@@ -6,6 +6,7 @@ num_channels = 3
 grid_size = 32
 num_box = 5
 epsilon = 1e-6
+jitter = True
 
 score_threshold = 0.5  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
 iou_threshold = 0.4  # real value, "intersection over union" threshold used for NMS filtering

@@ -6,7 +6,7 @@ from keras.utils import Sequence
 
 from augmentor import aug_pipe
 from config import batch_size, image_h, image_w, grid_h, grid_w, num_classes, num_channels, num_box, grid_size, \
-    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors
+    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors, jitter
 from utils import BoundBox, bbox_iou, parse_annot
 
 anchor_boxes = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
@@ -58,6 +58,65 @@ def get_ground_truth(annot, original_shape):
     return gt
 
 
+def aug_image(image, annot):
+    h, w, c = image.shape
+
+    if jitter:
+        ### scale the image
+        scale = np.random.uniform() / 10. + 1.
+        image = cv.resize(image, (0, 0), fx=scale, fy=scale)
+
+        ### translate the image
+        max_offx = (scale - 1.) * w
+        max_offy = (scale - 1.) * h
+        offx = int(np.random.uniform() * max_offx)
+        offy = int(np.random.uniform() * max_offy)
+
+        image = image[offy: (offy + h), offx: (offx + w)]
+
+        ### flip the image
+        flip = np.random.binomial(1, .5)
+        if flip > 0.5: image = cv.flip(image, 1)
+
+        image = aug_pipe.augment_image(image)
+
+        # resize the image to standard size
+    image = cv.resize(image, (image_h, image_w))
+    image = image[:, :, ::-1]
+
+    # fix object's position and size
+    new_bboxes = []
+    for bbox in annot['bboxes']:
+        xmin, ymin, width, height = bbox
+
+        if jitter:
+            xmin = int(xmin * scale - offx)
+            width = int(width * scale)
+
+        xmin = int(xmin * float(image_w) / w)
+        xmin = max(min(xmin, image_w), 0)
+        width = int(width * float(image_w) / w)
+        width = max(min(width, image_w), 0)
+
+        if jitter:
+            ymin = int(ymin * scale - offy)
+            height = int(height * scale)
+
+        ymin = int(ymin * float(image_h) / h)
+        ymin = max(min(ymin, image_h), 0)
+        height = int(height * float(image_h) / h)
+        height = max(min(height, image_h), 0)
+
+        if jitter and flip > 0.5:
+            xmin = image_w - xmin - width
+
+        new_bboxes.append((xmin, ymin, width, height))
+
+    new_annot = {'filename': annot['filename'], 'bboxes': new_bboxes}
+
+    return image, new_annot
+
+
 class DataGenSequence(Sequence):
     def __init__(self, usage):
         self.usage = usage
@@ -93,7 +152,7 @@ class DataGenSequence(Sequence):
             image_bgr = cv.resize(image_bgr, (image_h, image_w))
             image_rgb = image_bgr[:, :, ::-1]
             if self.usage == 'train':
-                image_rgb = aug_pipe.augment_image(image_rgb)
+                image_rgb = aug_pipe.augment_image(image_rgb, annot)
 
             batch_x[i_batch, :, :] = image_rgb / 255.
             batch_y[i_batch, :, :] = get_ground_truth(annot, original_shape)
