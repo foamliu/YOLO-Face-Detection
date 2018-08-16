@@ -86,7 +86,7 @@ class DataGenSequence(Sequence):
             filename = annot['filename']
             filename = os.path.join(self.image_folder, filename)
             image_bgr = cv.imread(filename)
-            original_shape = image_bgr[:2]
+            original_shape = image_bgr.shape[:2]
             image_bgr = cv.resize(image_bgr, (image_h, image_w))
             image_rgb = image_bgr[:, :, ::-1]
 
