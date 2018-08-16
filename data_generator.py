@@ -6,7 +6,7 @@ from keras.utils import Sequence
 from pycocotools.coco import COCO
 from augmentor import aug_pipe
 from config import batch_size, image_h, image_w, grid_h, grid_w, num_classes, num_channels, num_box, grid_size, \
-    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, catId2idx, anchors
+    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors
 from utils import BoundBox, bbox_iou
 
 _anchors = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]

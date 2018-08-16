@@ -17,10 +17,11 @@ num_classes = len(labels)
 class_weights = np.ones(num_classes, dtype='float32')
 
 
-train_image_folder = 'data/train2017'
-valid_image_folder = 'data/val2017'
-train_annot_file = 'data/annotations/instances_train2017.json'
-valid_annot_file = 'data/annotations/instances_val2017.json'
+train_image_folder = 'data/WIDER_train/images'
+valid_image_folder = 'data/WIDER_val/images'
+test_image_folder = 'data/WIDER_test/images'
+train_annot_file = 'data/wider_face_split/wider_face_train_bbx_gt.txt'
+valid_annot_file = 'data/wider_face_split/wider_face_val_bbx_gt.txt'
 
 verbose = 1
 batch_size = 32
