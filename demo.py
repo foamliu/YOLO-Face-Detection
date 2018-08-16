@@ -44,7 +44,7 @@ if __name__ == '__main__':
         # [1, 13, 13, 5, 6]
         netout = model.predict(image_input)[0]
         boxes = decode_netout(netout, anchors, num_classes)
-        image_bgr = draw_boxes(image_bgr, boxes, labels)
+        image_bgr = draw_boxes(image_bgr, boxes)
         cv.imwrite('images/{}_out.png'.format(i), image_bgr)
 
     K.clear_session()

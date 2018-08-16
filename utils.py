@@ -61,7 +61,7 @@ def parse_annot(annot_file):
     return annots
 
 
-def draw_boxes(image, boxes, labels):
+def draw_boxes(image, boxes):
     image_h, image_w, _ = image.shape
 
     for box in boxes:
@@ -69,12 +69,7 @@ def draw_boxes(image, boxes, labels):
         ymin = int(box.ymin * image_h)
         xmax = int(box.xmax * image_w)
         ymax = int(box.ymax * image_h)
-
-        s = labels[box.get_label()] + ' ' + str(box.get_score())
         cv.rectangle(image, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-        cv.putText(image, s, (xmin + 1, ymin + 1), cv.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness=2,
-                   lineType=cv.LINE_AA)
-        cv.putText(image, s, (xmin, ymin), cv.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), lineType=cv.LINE_AA)
     return image
 
 
