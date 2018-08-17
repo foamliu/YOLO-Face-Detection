@@ -162,7 +162,7 @@ if __name__ == '__main__':
         image = cv.imread(filename)
         image_resized = cv.resize(image, (image_h, image_w))
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_resized)
-        image, new_boxes = aug_image(image, annot['bboxes'])
+        image, new_boxes = aug_image(image, annot['bboxes'], True)
         new_bboxes = to_bboxes(new_boxes)
         draw_boxes(image, new_bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
