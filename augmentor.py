@@ -137,7 +137,6 @@ def convert_bboxes(bboxes, shape):
         xmax = xmin + w
         ymax = ymin + h
         bbox = BoundBox(xmin, ymin, xmax, ymax)
-        print(bbox)
         new_bboxes.append(bbox)
     return new_bboxes
 
