@@ -70,7 +70,7 @@ def draw_boxes(image, boxes):
         xmax = int(box.xmax * image_w)
         ymax = int(box.ymax * image_h)
         cv.rectangle(image, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-    return image
+    return
 
 
 def decode_netout(netout, anchors, nb_class, obj_threshold=0.3, nms_threshold=0.3):

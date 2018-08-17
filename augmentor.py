@@ -62,29 +62,40 @@ aug_pipe = iaa.Sequential(
     random_order=True
 )
 
+
+def convert_bboxes(bboxes, shape):
+    height, width = shape
+    new_bboxes = []
+    for bbox in bboxes:
+        x, y, w, h = bbox
+        xmin = x / width
+        ymin = y / height
+        w = w / width
+        h = h / height
+        new_bboxes.append((xmin, ymin, w, h))
+    return new_bboxes
+
+
 if __name__ == '__main__':
     import random
     import os
-    from config import image_h, image_w, test_image_folder, test_filelist_file
+    from config import image_h, image_w, train_image_folder, train_annot_file
     import cv2 as cv
+    from utils import parse_annot, draw_boxes
 
-    test_path = test_image_folder
-    with open(test_filelist_file, 'r') as file:
-        lines = file.readlines()
+    annots = parse_annot(train_annot_file)
 
-    test_images = []
-    for line in lines:
-        line = line.strip()
-        if len(line) > 0:
-            test_images.append(line)
-    print('loaded {} test images'.format(len(test_images)))
-    samples = random.sample(test_images, 10)
+    samples = random.sample(annots, 10)
 
     for i, sample in enumerate(samples):
-        image_name = sample
-        filename = os.path.join(test_image_folder, image_name)
+        image_name = sample['filename']
+        bboxes = sample['bboxes']
+        filename = os.path.join(train_image_folder, image_name)
         image_bgr = cv.imread(filename)
+        orig_shape = image_bgr.shape[:2]
         image_bgr = cv.resize(image_bgr, (image_h, image_w), cv.INTER_CUBIC)
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_bgr)
         image_bgr = aug_pipe.augment_image(image_bgr)
+        new_bboxes = convert_bboxes(bboxes, orig_shape)
+        draw_boxes(image_bgr, bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image_bgr)
