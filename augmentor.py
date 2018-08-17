@@ -1,8 +1,6 @@
 import numpy as np
 from imgaug import augmenters as iaa
 
-from config import jitter
-
 ### augmentors by https://github.com/aleju/imgaug
 sometimes = lambda aug: iaa.Sometimes(0.5, aug)
 
@@ -66,65 +64,60 @@ aug_pipe = iaa.Sequential(
 )
 
 
-def aug_image(image, annot):
+def aug_image(image, bboxes):
     h, w, c = image.shape
 
-    if jitter:
-        ### scale the image
-        scale = np.random.uniform() / 10. + 1.
-        image = cv.resize(image, (0, 0), fx=scale, fy=scale)
+    ### scale the image
+    scale = np.random.uniform() / 10. + 1.
+    image = cv.resize(image, (0, 0), fx=scale, fy=scale)
 
-        ### translate the image
-        max_offx = (scale - 1.) * w
-        max_offy = (scale - 1.) * h
-        offx = int(np.random.uniform() * max_offx)
-        offy = int(np.random.uniform() * max_offy)
+    ### translate the image
+    max_offx = (scale - 1.) * w
+    max_offy = (scale - 1.) * h
+    offx = int(np.random.uniform() * max_offx)
+    offy = int(np.random.uniform() * max_offy)
 
-        image = image[offy: (offy + h), offx: (offx + w)]
+    image = image[offy: (offy + h), offx: (offx + w)]
 
-        ### flip the image
-        flip = np.random.binomial(1, .5)
-        if flip > 0.5: image = cv.flip(image, 1)
+    ### flip the image
+    flip = np.random.binomial(1, .5)
+    if flip > 0.5: image = cv.flip(image, 1)
 
-        image = aug_pipe.augment_image(image)
+    image = aug_pipe.augment_image(image)
 
-        # resize the image to standard size
-    image = cv.resize(image, (image_h, image_w))
+    # resize the image to standard size
+    image = cv.resize(image, (image_w, image_h))
 
     # fix object's position and size
     new_bboxes = []
-    for bbox in annot['bboxes']:
+    for bbox in bboxes:
         xmin, ymin, width, height = bbox
 
-        if jitter:
-            xmin = int(xmin * scale - offx)
-            width = int(width * scale)
+        xmin = int(xmin * scale - offx)
+        width = int(width * scale)
 
         xmin = int(xmin * float(image_w) / w)
         xmin = max(min(xmin, image_w), 0)
         width = int(width * float(image_w) / w)
         width = max(min(width, image_w), 0)
 
-        if jitter:
-            ymin = int(ymin * scale - offy)
-            height = int(height * scale)
+        ymin = int(ymin * scale - offy)
+        height = int(height * scale)
 
         ymin = int(ymin * float(image_h) / h)
         ymin = max(min(ymin, image_h), 0)
         height = int(height * float(image_h) / h)
         height = max(min(height, image_h), 0)
 
-        if jitter and flip > 0.5:
-            xmin = image_w - xmin - width
+        if flip > 0.5:
+            xmin = image_w - (xmin + width)
 
         new_bboxes.append((xmin, ymin, width, height))
 
-    new_annot = {'filename': annot['filename'], 'bboxes': new_bboxes}
-
-    return image, new_annot
+    return image, new_bboxes
 
 
-def convert_bboxes(bboxes, shape):
+def to_bboxes(bboxes, shape):
     from utils import BoundBox
     height, width = shape
     new_bboxes = []
@@ -160,7 +153,7 @@ if __name__ == '__main__':
         orig_shape = image.shape[:2]
         image_resized = cv.resize(image, (image_h, image_w))
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_resized)
-        image, annot = aug_image(image, annot)
-        new_bboxes = convert_bboxes(annot['bboxes'], orig_shape)
+        image, new_boxes = aug_image(image, annot['bboxes'])
+        new_bboxes = to_bboxes(new_boxes, orig_shape)
         draw_boxes(image, new_bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
