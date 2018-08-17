@@ -65,19 +65,19 @@ aug_pipe = iaa.Sequential(
 
 
 def aug_image(image, bboxes):
-    h, w, c = image.shape
+    orig_h, orig_w = image.shape[:2]
 
     ### scale the image
     scale = np.random.uniform() / 10. + 1.
     image = cv.resize(image, (0, 0), fx=scale, fy=scale)
 
     ### translate the image
-    max_offx = (scale - 1.) * w
-    max_offy = (scale - 1.) * h
+    max_offx = (scale - 1.) * orig_w
+    max_offy = (scale - 1.) * orig_h
     offx = int(np.random.uniform() * max_offx)
     offy = int(np.random.uniform() * max_offy)
 
-    image = image[offy: (offy + h), offx: (offx + w)]
+    image = image[offy: (offy + orig_h), offx: (offx + orig_w)]
 
     ### flip the image
     flip = np.random.binomial(1, .5)
@@ -91,28 +91,32 @@ def aug_image(image, bboxes):
     # fix object's position and size
     new_bboxes = []
     for bbox in bboxes:
-        xmin, ymin, width, height = bbox
+        bx, by, bw, bh = bbox
 
-        xmin = int(xmin * scale - offx)
-        width = int(width * scale)
+        bx = bx * (image_w / orig_w)
+        bx = int(bx * scale - offx)
+        bw = bw * (image_w / orig_w)
+        bw = int(bw * scale)
 
-        xmin = int(xmin * float(image_w) / w)
-        xmin = max(min(xmin, image_w), 0)
-        width = int(width * float(image_w) / w)
-        width = max(min(width, image_w), 0)
+        bx = int(bx * float(image_w) / orig_w)
+        bx = max(min(bx, image_w), 0)
+        bw = int(bw * float(image_w) / orig_w)
+        bw = max(min(bw, image_w), 0)
 
-        ymin = int(ymin * scale - offy)
-        height = int(height * scale)
+        by = by * (image_h / orig_h)
+        by = int(by * scale - offy)
+        bh = bh * (image_h / orig_h)
+        bh = int(bh * scale)
 
-        ymin = int(ymin * float(image_h) / h)
-        ymin = max(min(ymin, image_h), 0)
-        height = int(height * float(image_h) / h)
-        height = max(min(height, image_h), 0)
+        by = int(by * float(image_h) / orig_h)
+        by = max(min(by, image_h), 0)
+        bh = int(bh * float(image_h) / orig_h)
+        bh = max(min(bh, image_h), 0)
 
         if flip > 0.5:
-            xmin = image_w - (xmin + width)
+            bx = image_w - (bx + bw)
 
-        new_bboxes.append((xmin, ymin, width, height))
+        new_bboxes.append((bx, by, bw, bh))
 
     return image, new_bboxes
 
