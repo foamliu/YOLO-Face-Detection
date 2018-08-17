@@ -67,15 +67,17 @@ def convert_bboxes(bboxes, shape):
     from utils import BoundBox
     height, width = shape
     new_bboxes = []
-    for bbox in bboxes:
-        x, y, w, h = bbox
+    for box in bboxes:
+        x, y, w, h = box
         xmin = x / width
         ymin = y / height
         w = w / width
         h = h / height
         xmax = xmin + w
         ymax = ymin + h
-        new_bboxes.append(BoundBox(xmin, ymin, xmax, ymax))
+        bbox = BoundBox(xmin, ymin, xmax, ymax)
+        print(bbox)
+        new_bboxes.append(bbox)
     return new_bboxes
 
 
