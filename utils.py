@@ -65,7 +65,6 @@ def draw_boxes(image, boxes):
     image_h, image_w, _ = image.shape
 
     for box in boxes:
-        print(box)
         xmin = int(box.xmin * image_w)
         ymin = int(box.ymin * image_h)
         xmax = int(box.xmax * image_w)

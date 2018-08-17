@@ -155,6 +155,7 @@ if __name__ == '__main__':
     for i, annot in enumerate(samples):
         image_name = annot['filename']
         filename = os.path.join(train_image_folder, image_name)
+        print('processing {}'.format(filename))
         image = cv.imread(filename)
         orig_shape = image.shape[:2]
         image_resized = cv.resize(image, (image_h, image_w))
