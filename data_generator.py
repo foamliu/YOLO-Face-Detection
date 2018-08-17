@@ -12,26 +12,24 @@ from utils import BoundBox, bbox_iou, parse_annot
 anchor_boxes = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
 
 
-def get_ground_truth(annot, original_shape):
+def get_ground_truth(annot, orig_shape):
     gt = np.zeros((grid_h, grid_w, num_box, 4 + 1 + num_classes), dtype=np.float32)
-    original_height, original_width = original_shape
+    orig_h, orig_w = orig_shape
 
     for bbox in annot['bboxes']:
-        xmin, ymin, width, height = bbox
-        xmin = 1.0 * xmin * image_w / original_width
-        ymin = 1.0 * ymin * image_h / original_height
-        width = 1.0 * width * image_w / original_width
-        height = 1.0 * height * image_h / original_height
-        center_x = xmin + width / 2.
-        center_x = np.clip(center_x, 0, image_w - 0.01)
+        bx, by, bw, bh = bbox
+        bx = 1.0 * bx * (image_w / orig_w)
+        by = 1.0 * by * (image_h / orig_h)
+        bw = 1.0 * bw * (image_w / orig_w)
+        bh = 1.0 * bh * (image_h / orig_h)
+        center_x = bx + bw / 2.
         center_x = center_x / float(image_w / grid_w)
-        center_y = ymin + height / 2.
-        center_y = np.clip(center_y, 0, image_h - 0.01)
+        center_y = by + bh / 2.
         center_y = center_y / float(image_h / grid_h)
         cell_x = int(np.floor(center_x))
         cell_y = int(np.floor(center_y))
-        center_w = width / grid_size
-        center_h = height / grid_size
+        center_w = bw / grid_size
+        center_h = bh / grid_size
         box = [center_x, center_y, center_w, center_h]
 
         # find the anchor that best predicts this box
@@ -56,65 +54,6 @@ def get_ground_truth(annot, original_shape):
         gt[cell_y, cell_x, best_anchor, 1:5] = box
         gt[cell_y, cell_x, best_anchor, 5] = 1.0
     return gt
-
-
-def aug_image(image, annot):
-    h, w, c = image.shape
-
-    if jitter:
-        ### scale the image
-        scale = np.random.uniform() / 10. + 1.
-        image = cv.resize(image, (0, 0), fx=scale, fy=scale)
-
-        ### translate the image
-        max_offx = (scale - 1.) * w
-        max_offy = (scale - 1.) * h
-        offx = int(np.random.uniform() * max_offx)
-        offy = int(np.random.uniform() * max_offy)
-
-        image = image[offy: (offy + h), offx: (offx + w)]
-
-        ### flip the image
-        flip = np.random.binomial(1, .5)
-        if flip > 0.5: image = cv.flip(image, 1)
-
-        image = aug_pipe.augment_image(image)
-
-        # resize the image to standard size
-    image = cv.resize(image, (image_h, image_w))
-    image = image[:, :, ::-1]
-
-    # fix object's position and size
-    new_bboxes = []
-    for bbox in annot['bboxes']:
-        xmin, ymin, width, height = bbox
-
-        if jitter:
-            xmin = int(xmin * scale - offx)
-            width = int(width * scale)
-
-        xmin = int(xmin * float(image_w) / w)
-        xmin = max(min(xmin, image_w), 0)
-        width = int(width * float(image_w) / w)
-        width = max(min(width, image_w), 0)
-
-        if jitter:
-            ymin = int(ymin * scale - offy)
-            height = int(height * scale)
-
-        ymin = int(ymin * float(image_h) / h)
-        ymin = max(min(ymin, image_h), 0)
-        height = int(height * float(image_h) / h)
-        height = max(min(height, image_h), 0)
-
-        if jitter and flip > 0.5:
-            xmin = image_w - xmin - width
-
-        new_bboxes.append((xmin, ymin, width, height))
-
-    new_annot = {'filename': annot['filename'], 'bboxes': new_bboxes}
-
-    return image, new_annot
 
 
 class DataGenSequence(Sequence):
@@ -148,14 +87,14 @@ class DataGenSequence(Sequence):
             filename = annot['filename']
             filename = os.path.join(self.image_folder, filename)
             image_bgr = cv.imread(filename)
-            original_shape = image_bgr.shape[:2]
+            orig_shape = image_bgr.shape[:2]
             image_bgr = cv.resize(image_bgr, (image_h, image_w))
             image_rgb = image_bgr[:, :, ::-1]
             if self.usage == 'train':
                 image_rgb = aug_pipe.augment_image(image_rgb, annot)
 
             batch_x[i_batch, :, :] = image_rgb / 255.
-            batch_y[i_batch, :, :] = get_ground_truth(annot, original_shape)
+            batch_y[i_batch, :, :] = get_ground_truth(annot, orig_shape)
 
         return batch_x, batch_y
 
