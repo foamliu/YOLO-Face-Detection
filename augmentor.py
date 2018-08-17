@@ -64,6 +64,7 @@ aug_pipe = iaa.Sequential(
 
 
 def convert_bboxes(bboxes, shape):
+    from utils import BoundBox
     height, width = shape
     new_bboxes = []
     for bbox in bboxes:
@@ -72,7 +73,9 @@ def convert_bboxes(bboxes, shape):
         ymin = y / height
         w = w / width
         h = h / height
-        new_bboxes.append((xmin, ymin, w, h))
+        xmax = xmin + w
+        ymax = ymin + h
+        new_bboxes.append(BoundBox(xmin, ymin, xmax, ymax))
     return new_bboxes
 
 
