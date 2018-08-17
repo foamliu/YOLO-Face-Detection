@@ -25,10 +25,8 @@ def get_ground_truth(boxes):
         center_x = center_x / grid_size
         center_y = by + bh / 2.
         center_y = center_y / grid_size
-        cell_x = int(np.floor(center_x))
-        cell_y = int(np.floor(center_y))
-        center_x = center_x - cell_x
-        center_y = center_y - cell_y
+        cell_x = int(np.clip(np.floor(center_x), 0.0, (grid_w - 1)))
+        cell_y = int(np.clip(np.floor(center_y), 0.0, (grid_h - 1)))
         center_w = bw / grid_size
         center_h = bh / grid_size
         box = [center_x, center_y, center_w, center_h]
