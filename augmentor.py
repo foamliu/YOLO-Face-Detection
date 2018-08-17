@@ -64,60 +64,72 @@ aug_pipe = iaa.Sequential(
 )
 
 
-def aug_image(image, bboxes):
+def aug_image(image, bboxes, jitter):
     orig_h, orig_w = image.shape[:2]
 
-    ### scale the image
-    scale = np.random.uniform() / 10. + 1.
-    image = cv.resize(image, (0, 0), fx=scale, fy=scale)
+    if jitter:
+        ### scale the image
+        scale = np.random.uniform() / 10. + 1.
+        image = cv.resize(image, (0, 0), fx=scale, fy=scale)
 
-    ### translate the image
-    max_offx = (scale - 1.) * orig_w
-    max_offy = (scale - 1.) * orig_h
-    offx = int(np.random.uniform() * max_offx)
-    offy = int(np.random.uniform() * max_offy)
+        ### translate the image
+        max_offx = (scale - 1.) * orig_w
+        max_offy = (scale - 1.) * orig_h
+        offx = int(np.random.uniform() * max_offx)
+        offy = int(np.random.uniform() * max_offy)
 
-    image = image[offy: (offy + orig_h), offx: (offx + orig_w)]
+        image = image[offy: (offy + orig_h), offx: (offx + orig_w)]
 
-    ### flip the image
-    flip = np.random.binomial(1, .5)
-    if flip > 0.5: image = cv.flip(image, 1)
+        ### flip the image
+        flip = np.random.binomial(1, .5)
+        if flip > 0.5: image = cv.flip(image, 1)
 
-    image = aug_pipe.augment_image(image)
+        image = aug_pipe.augment_image(image)
 
-    # resize the image to standard size
-    image = cv.resize(image, (image_w, image_h))
+        # resize the image to standard size
+        image = cv.resize(image, (image_w, image_h))
 
-    # fix object's position and size
-    new_bboxes = []
-    for bbox in bboxes:
-        bx, by, bw, bh = bbox
+        # fix object's position and size
+        new_bboxes = []
+        for bbox in bboxes:
+            bx, by, bw, bh = bbox
 
-        bx = int(bx * scale - offx)
-        bw = int(bw * scale)
+            bx = int(bx * scale - offx)
+            bw = int(bw * scale)
 
-        bx = int(bx * float(image_w) / orig_w)
-        bx = max(min(bx, image_w), 0)
-        bw = int(bw * float(image_w) / orig_w)
-        bw = max(min(bw, image_w), 0)
+            bx = int(bx * float(image_w) / orig_w)
+            bx = max(min(bx, image_w), 0)
+            bw = int(bw * float(image_w) / orig_w)
+            bw = max(min(bw, image_w), 0)
 
-        by = int(by * scale - offy)
-        bh = int(bh * scale)
+            by = int(by * scale - offy)
+            bh = int(bh * scale)
 
-        by = int(by * float(image_h) / orig_h)
-        by = max(min(by, image_h), 0)
-        bh = int(bh * float(image_h) / orig_h)
-        bh = max(min(bh, image_h), 0)
+            by = int(by * float(image_h) / orig_h)
+            by = max(min(by, image_h), 0)
+            bh = int(bh * float(image_h) / orig_h)
+            bh = max(min(bh, image_h), 0)
 
-        bx = bx / image_w
-        bw = bw / image_w
-        by = by / image_h
-        bh = bh / image_h
+            bx = bx / image_w
+            bw = bw / image_w
+            by = by / image_h
+            bh = bh / image_h
 
-        if flip > 0.5:
-            bx = 1.0 - (bx + bw)
+            if flip > 0.5:
+                bx = 1.0 - (bx + bw)
 
-        new_bboxes.append((bx, by, bw, bh))
+            new_bboxes.append((bx, by, bw, bh))
+    else:
+        # resize the image to standard size
+        image = cv.resize(image, (image_w, image_h))
+        new_bboxes = []
+        for bbox in bboxes:
+            bx, by, bw, bh = bbox
+            bx = bx / orig_w
+            bw = bw / orig_w
+            by = by / orig_h
+            bh = bh / orig_h
+            new_bboxes.append((bx, by, bw, bh))
 
     return image, new_bboxes
 

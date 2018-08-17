@@ -12,16 +12,11 @@ from utils import BoundBox, bbox_iou, parse_annot
 anchor_boxes = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
 
 
-def get_ground_truth(annot, orig_shape):
+def get_ground_truth(boxes):
     gt = np.zeros((grid_h, grid_w, num_box, 4 + 1 + num_classes), dtype=np.float32)
-    orig_h, orig_w = orig_shape
 
-    for bbox in annot['bboxes']:
+    for bbox in boxes:
         bx, by, bw, bh = bbox
-        bx = 1.0 * bx * (image_w / orig_w)
-        by = 1.0 * by * (image_h / orig_h)
-        bw = 1.0 * bw * (image_w / orig_w)
-        bh = 1.0 * bh * (image_h / orig_h)
         center_x = bx + bw / 2.
         center_x = center_x / float(image_w / grid_w)
         center_y = by + bh / 2.
@@ -87,13 +82,15 @@ class DataGenSequence(Sequence):
             filename = annot['filename']
             filename = os.path.join(self.image_folder, filename)
             image = cv.imread(filename)
-            orig_shape = image.shape[:2]
+            boxes = annot['bboxes']
             if self.usage == 'train':
-                image = aug_image(image, annot)
+                image, boxes = aug_image(image, boxes, jitter=True)
+            else:
+                image, boxes = aug_image(image, boxes, jitter=False)
 
             image = image[:, :, ::-1]
             batch_x[i_batch, :, :] = image / 255.
-            batch_y[i_batch, :, :] = get_ground_truth(annot, orig_shape)
+            batch_y[i_batch, :, :] = get_ground_truth(boxes)
 
         return batch_x, batch_y
 
