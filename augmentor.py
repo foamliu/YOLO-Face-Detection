@@ -1,5 +1,12 @@
+import os
+import random
+
+import cv2 as cv
 import numpy as np
 from imgaug import augmenters as iaa
+
+from config import image_h, image_w, train_image_folder, train_annot_file
+from utils import parse_annot, draw_boxes
 
 ### augmentors by https://github.com/aleju/imgaug
 sometimes = lambda aug: iaa.Sometimes(0.5, aug)
@@ -145,14 +152,7 @@ def to_bboxes(bboxes):
 
 
 if __name__ == '__main__':
-    import random
-    import os
-    from config import image_h, image_w, train_image_folder, train_annot_file
-    import cv2 as cv
-    from utils import parse_annot, draw_boxes
-
     annots = parse_annot(train_annot_file)
-
     samples = random.sample(annots, 10)
 
     for i, annot in enumerate(samples):
