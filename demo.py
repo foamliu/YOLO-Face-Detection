@@ -6,7 +6,7 @@ import cv2 as cv
 import keras.backend as K
 import numpy as np
 
-from config import image_size, test_image_folder, test_filelist_file, labels, anchors, num_classes
+from config import image_size, test_image_folder, test_filelist_file, anchors, num_classes, score_threshold, iou_threshold
 from model import build_model
 from utils import ensure_folder, decode_netout, draw_boxes, get_best_model
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         image_input = np.expand_dims(image_rgb, 0).astype(np.float32)
         # [1, 13, 13, 5, 6]
         netout = model.predict(image_input)[0]
-        boxes = decode_netout(netout, anchors, num_classes)
+        boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
         image_bgr = draw_boxes(image_bgr, boxes)
         cv.imwrite('images/{}_out.png'.format(i), image_bgr)
 
