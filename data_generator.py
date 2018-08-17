@@ -17,12 +17,18 @@ def get_ground_truth(boxes):
 
     for bbox in boxes:
         bx, by, bw, bh = bbox
+        bx = 1.0 * bx * image_w
+        by = 1.0 * by * image_h
+        bw = 1.0 * bw * image_w
+        bh = 1.0 * bh * image_h
         center_x = bx + bw / 2.
-        center_x = center_x / float(image_w / grid_w)
+        center_x = center_x / grid_size
         center_y = by + bh / 2.
-        center_y = center_y / float(image_h / grid_h)
+        center_y = center_y / grid_size
         cell_x = int(np.floor(center_x))
         cell_y = int(np.floor(center_y))
+        center_x = center_x - cell_x
+        center_y = center_y - cell_y
         center_w = bw / grid_size
         center_h = bh / grid_size
         box = [center_x, center_y, center_w, center_h]

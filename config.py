@@ -3,7 +3,7 @@ import numpy as np
 image_h = image_w = image_size = 416
 grid_h = grid_w = 13
 num_channels = 3
-grid_size = 32
+grid_size = 32.0
 num_box = 2
 epsilon = 1e-6
 jitter = True

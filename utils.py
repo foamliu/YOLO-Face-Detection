@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.client import device_lib
 
-from config import valid_annot_file, train_annot_file, grid_h, grid_w
+from config import grid_h, grid_w
 
 
 def ensure_folder(folder):
