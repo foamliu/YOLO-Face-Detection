@@ -102,5 +102,5 @@ if __name__ == '__main__':
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_bgr)
         image_bgr = aug_pipe.augment_image(image_bgr)
         new_bboxes = convert_bboxes(bboxes, orig_shape)
-        draw_boxes(image_bgr, bboxes)
+        draw_boxes(image_bgr, new_bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image_bgr)
