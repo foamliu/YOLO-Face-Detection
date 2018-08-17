@@ -154,13 +154,12 @@ if __name__ == '__main__':
 
     for i, annot in enumerate(samples):
         image_name = annot['filename']
-        bboxes = annot['bboxes']
         filename = os.path.join(train_image_folder, image_name)
         image = cv.imread(filename)
         orig_shape = image.shape[:2]
         image_resized = cv.resize(image, (image_h, image_w))
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_resized)
-        image_aug = aug_image(image, annot)
-        new_bboxes = convert_bboxes(bboxes, orig_shape)
-        draw_boxes(image_aug, new_bboxes)
-        cv.imwrite('images/imgaug_after_{}.png'.format(i), image_aug)
+        image, annot = aug_image(image, annot)
+        new_bboxes = convert_bboxes(annot['bboxes'], orig_shape)
+        draw_boxes(image, new_bboxes)
+        cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
