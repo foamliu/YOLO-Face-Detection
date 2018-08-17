@@ -148,10 +148,9 @@ if __name__ == '__main__':
         filename = os.path.join(train_image_folder, image_name)
         print('processing {}'.format(filename))
         image = cv.imread(filename)
-        orig_shape = image.shape[:2]
         image_resized = cv.resize(image, (image_h, image_w))
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image_resized)
         image, new_boxes = aug_image(image, annot['bboxes'])
-        new_bboxes = to_bboxes(new_boxes, orig_shape)
+        new_bboxes = to_bboxes(new_boxes)
         draw_boxes(image, new_bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
