@@ -93,9 +93,7 @@ def aug_image(image, bboxes):
     for bbox in bboxes:
         bx, by, bw, bh = bbox
 
-        bx = bx * (image_w / orig_w)
         bx = int(bx * scale - offx)
-        bw = bw * (image_w / orig_w)
         bw = int(bw * scale)
 
         bx = int(bx * float(image_w) / orig_w)
@@ -103,9 +101,7 @@ def aug_image(image, bboxes):
         bw = int(bw * float(image_w) / orig_w)
         bw = max(min(bw, image_w), 0)
 
-        by = by * (image_h / orig_h)
         by = int(by * scale - offy)
-        bh = bh * (image_h / orig_h)
         bh = int(bh * scale)
 
         by = int(by * float(image_h) / orig_h)
@@ -113,27 +109,25 @@ def aug_image(image, bboxes):
         bh = int(bh * float(image_h) / orig_h)
         bh = max(min(bh, image_h), 0)
 
+        bx = bx / image_w
+        bw = bw / image_w
+        by = by / image_h
+        bh = bh / image_h
+
         if flip > 0.5:
-            bx = image_w - (bx + bw)
+            bx = 1.0 - (bx + bw)
 
         new_bboxes.append((bx, by, bw, bh))
 
     return image, new_bboxes
 
 
-def to_bboxes(bboxes, shape):
+def to_bboxes(bboxes):
     from utils import BoundBox
-    height, width = shape
     new_bboxes = []
     for box in bboxes:
         x, y, w, h = box
-        xmin = x / width
-        ymin = y / height
-        w = w / width
-        h = h / height
-        xmax = xmin + w
-        ymax = ymin + h
-        bbox = BoundBox(xmin, ymin, xmax, ymax)
+        bbox = BoundBox(x, y, x + w, y + h)
         new_bboxes.append(bbox)
     return new_bboxes
 
