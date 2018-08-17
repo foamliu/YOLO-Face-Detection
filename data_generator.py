@@ -4,9 +4,9 @@ import cv2 as cv
 import numpy as np
 from keras.utils import Sequence
 
-from augmentor import aug_pipe
+from augmentor import aug_image
 from config import batch_size, image_h, image_w, grid_h, grid_w, num_classes, num_channels, num_box, grid_size, \
-    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors, jitter
+    train_image_folder, valid_image_folder, train_annot_file, valid_annot_file, anchors
 from utils import BoundBox, bbox_iou, parse_annot
 
 anchor_boxes = [BoundBox(0, 0, anchors[2 * i], anchors[2 * i + 1]) for i in range(int(len(anchors) // 2))]
@@ -86,14 +86,13 @@ class DataGenSequence(Sequence):
             annot = self.annots[i + i_batch]
             filename = annot['filename']
             filename = os.path.join(self.image_folder, filename)
-            image_bgr = cv.imread(filename)
-            orig_shape = image_bgr.shape[:2]
-            image_bgr = cv.resize(image_bgr, (image_h, image_w))
-            image_rgb = image_bgr[:, :, ::-1]
+            image = cv.imread(filename)
+            orig_shape = image.shape[:2]
             if self.usage == 'train':
-                image_rgb = aug_pipe.augment_image(image_rgb, annot)
+                image = aug_image(image, annot)
 
-            batch_x[i_batch, :, :] = image_rgb / 255.
+            image = image[:, :, ::-1]
+            batch_x[i_batch, :, :] = image / 255.
             batch_y[i_batch, :, :] = get_ground_truth(annot, orig_shape)
 
         return batch_x, batch_y
