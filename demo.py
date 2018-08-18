@@ -44,7 +44,6 @@ if __name__ == '__main__':
         netout = model.predict(image_input)[0]
         boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
         print(boxes)
-        print(image_bgr.shape)
         image_bgr = draw_boxes(image_bgr, boxes)
         cv.imwrite('images/{}_out.png'.format(i), image_bgr)
 

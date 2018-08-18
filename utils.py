@@ -83,6 +83,7 @@ def decode_netout(netout, anchors, nb_class, obj_threshold=0.3, nms_threshold=0.
     netout[..., 5:] = netout[..., 0][..., np.newaxis] * _softmax(netout[..., 5:])
     netout[..., 5:] *= netout[..., 5:] > obj_threshold
 
+    box_confs = []
     for row in range(grid_h):
         for col in range(grid_w):
             for b in range(nb_box):
@@ -98,10 +99,14 @@ def decode_netout(netout, anchors, nb_class, obj_threshold=0.3, nms_threshold=0.
                     w = anchors[2 * b + 0] * np.exp(w) / grid_w  # unit: image width
                     h = anchors[2 * b + 1] * np.exp(h) / grid_h  # unit: image height
                     confidence = netout[row, col, b, 0]
-
+                    box_confs.append(confidence)
                     box = BoundBox(x - w / 2, y - h / 2, x + w / 2, y + h / 2, confidence, classes)
 
                     boxes.append(box)
+
+    print('np.mean(box_confs): ' + str(np.mean(box_confs)))
+    print('np.max(box_confs): ' + str(np.max(box_confs)))
+    print('np.min(box_confs): ' + str(np.min(box_confs)))
 
     # suppress non-maximal boxes
     for c in range(nb_class):
