@@ -8,8 +8,8 @@ num_box = 2
 epsilon = 1e-6
 jitter = True
 
-score_threshold = 0.5  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
-iou_threshold = 0.4  # real value, "intersection over union" threshold used for NMS filtering
+score_threshold = 0.3  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
+iou_threshold = 0.3  # real value, "intersection over union" threshold used for NMS filtering
 anchors = [0.18, 0.33, 1.04, 1.69]
 
 labels = ['face']
