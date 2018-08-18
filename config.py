@@ -8,7 +8,7 @@ num_box = 10
 epsilon = 1e-6
 jitter = True
 
-score_threshold = 0.2  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
+score_threshold = 0.3  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
 iou_threshold = 0.3  # real value, "intersection over union" threshold used for NMS filtering
 anchors = [0.12, 0.20, 0.21, 0.38, 0.34, 0.63, 0.53, 0.99, 0.83, 1.47, 1.30, 2.23, 2.12, 3.16, 2.91, 5.28, 4.96, 7.00,
            7.85, 10.27]
