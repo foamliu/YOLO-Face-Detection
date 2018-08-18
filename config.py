@@ -10,7 +10,8 @@ jitter = True
 
 score_threshold = 0.15  # real value, if [ highest class probability score < threshold], then get rid of the corresponding box
 iou_threshold = 0.3  # real value, "intersection over union" threshold used for NMS filtering
-anchors = [0.15,0.27, 0.34,0.62, 0.73,1.29, 1.69,2.79, 4.94,7.17]
+anchors = [0.12, 0.20, 0.21, 0.38, 0.34, 0.63, 0.53, 0.99, 0.83, 1.47, 1.30, 2.23, 2.12, 3.16, 2.91, 5.28, 4.96, 7.00,
+           7.85, 10.27]
 
 labels = ['face']
 num_classes = len(labels)
