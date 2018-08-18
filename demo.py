@@ -43,7 +43,7 @@ if __name__ == '__main__':
         image_input = np.expand_dims(image_rgb, 0).astype(np.float32)
         netout = model.predict(image_input)[0]
         boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
-        print(boxes)
+        print(len(boxes))
         image_bgr = draw_boxes(image_bgr, boxes)
         cv.imwrite('images/{}_out.png'.format(i), image_bgr)
 
