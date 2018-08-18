@@ -46,6 +46,6 @@ if __name__ == '__main__':
         print(boxes)
         print(image_bgr.shape)
         image_bgr = draw_boxes(image_bgr, boxes)
-        cv.imwrite('images/{}_out.png'.format(i), image_bgr)
+        cv.imwrite('images/{}_out.jpg'.format(i), image_bgr)
 
     K.clear_session()
