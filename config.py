@@ -33,7 +33,7 @@ patience = 50
 
 lambda_coord = 1.0
 lambda_obj = 5.0
-lambda_noobj = 1.5
+lambda_noobj = 1.0
 lambda_class = 1.0
 
 max_boxes = 50  # integer, maximum number of predicted boxes in an image
