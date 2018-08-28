@@ -161,5 +161,6 @@ if __name__ == '__main__':
         image = image[:, :, ::-1]
         cv.imwrite('images/imgaug_before_{}.png'.format(i), image)
         boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
-        draw_boxes(image, boxes)
+        print('boxes: ' + str(boxes))
+        image = draw_boxes(image, boxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
