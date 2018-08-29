@@ -1,9 +1,12 @@
+import os
+import random
+
 import cv2 as cv
 import numpy as np
 from imgaug import augmenters as iaa
 
-from config import image_h, image_w, num_classes, score_threshold, iou_threshold, anchors
-from utils import decode_netout, draw_boxes
+from config import image_h, image_w, train_image_folder, train_annot_file
+from utils import parse_annot, draw_boxes
 
 ### augmentors by https://github.com/aleju/imgaug
 sometimes = lambda aug: iaa.Sometimes(0.5, aug)
@@ -149,18 +152,17 @@ def to_bboxes(bboxes):
 
 
 if __name__ == '__main__':
-    from data_generator import DataGenSequence
+    annots = parse_annot(train_annot_file)
+    samples = random.sample(annots, 10)
 
-    datagen = DataGenSequence('train')
-    batch_inputs, batch_outputs = datagen.__getitem__(0)
-
-    for i in range(10):
-        image = batch_inputs[i]
-        netout = batch_outputs[i]
-        image = (image * 255.).astype(np.uint8)
-        image = image[:, :, ::-1]
-        cv.imwrite('images/imgaug_before_{}.png'.format(i), image)
-        boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
-        print('boxes: ' + str(boxes))
-        image = draw_boxes(image, boxes)
+    for i, annot in enumerate(samples):
+        image_name = annot['filename']
+        filename = os.path.join(train_image_folder, image_name)
+        print('processing {}'.format(filename))
+        image = cv.imread(filename)
+        image_resized = cv.resize(image, (image_h, image_w))
+        cv.imwrite('images/imgaug_before_{}.png'.format(i), image_resized)
+        image, new_boxes = aug_image(image, annot['bboxes'], True)
+        new_bboxes = to_bboxes(new_boxes)
+        draw_boxes(image, new_bboxes)
         cv.imwrite('images/imgaug_after_{}.png'.format(i), image)

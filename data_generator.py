@@ -108,3 +108,21 @@ def train_gen():
 
 def valid_gen():
     return DataGenSequence('valid')
+
+
+if __name__ == '__main__':
+    from data_generator import DataGenSequence
+
+    datagen = DataGenSequence('train')
+    batch_inputs, batch_outputs = datagen.__getitem__(0)
+
+    for i in range(10):
+        image = batch_inputs[i]
+        netout = batch_outputs[i]
+        image = (image * 255.).astype(np.uint8)
+        image = image[:, :, ::-1]
+        cv.imwrite('images/imgaug_before_{}.png'.format(i), image)
+        boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
+        print('boxes: ' + str(boxes))
+        image = draw_boxes(image, boxes)
+        cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
