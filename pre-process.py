@@ -1,7 +1,5 @@
 import zipfile
 
-from utils import parse_annot
-
 
 def extract(package):
     filename = 'data/{}.zip'.format(package)
