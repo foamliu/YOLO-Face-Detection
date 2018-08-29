@@ -123,6 +123,14 @@ if __name__ == '__main__':
     for row in range(grid_h):
         for col in range(grid_w):
             for b in range(num_box):
-                sum += target[row, col, b, 0]
+                if target[row, col, b, 0] > 0:
+                    feature = target[row, col, b]
+                    bx = feature[1]
+                    by = feature[2]
+                    bw = feature[3]
+                    bh = feature[4]
+                    print('row:{}, col:{}, b:{}'.format(row, col, b))
+                    print('bx:{}, by:{}, bw:{}, bh:{}'.format(bx, by, bw, bh))
+                    sum += target[row, col, b, 0]
 
     print(sum)
