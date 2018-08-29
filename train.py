@@ -18,6 +18,7 @@ if __name__ == '__main__':
     args = vars(ap.parse_args())
     pretrained_path = args["pretrained"]
     checkpoint_models_path = 'models/'
+    ensure_folder(checkpoint_models_path)
     if pretrained_path is None:
         pretrained_path = get_best_model()
 
@@ -64,7 +65,6 @@ if __name__ == '__main__':
     # Final callbacks
     callbacks = [tensor_board, model_checkpoint, early_stop, reduce_lr]
 
-    ensure_folder('models')
     # Start Fine-tuning
     new_model.fit_generator(train_gen(),
                             steps_per_epoch=num_train_samples // batch_size,
