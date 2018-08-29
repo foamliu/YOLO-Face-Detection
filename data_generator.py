@@ -125,12 +125,13 @@ if __name__ == '__main__':
             for b in range(num_box):
                 if target[row, col, b, 0] > 0:
                     feature = target[row, col, b]
+                    bconf = feature[0]
                     bx = feature[1]
                     by = feature[2]
                     bw = feature[3]
                     bh = feature[4]
                     print('row:{}, col:{}, b:{}'.format(row, col, b))
-                    print('bx:{}, by:{}, bw:{}, bh:{}'.format(bx, by, bw, bh))
+                    print('bconf:{}, bx:{}, by:{}, bw:{}, bh:{}'.format(bconf, bx, by, bw, bh))
                     sum += target[row, col, b, 0]
 
     print(sum)
