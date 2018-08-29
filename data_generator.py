@@ -111,18 +111,18 @@ def valid_gen():
 
 
 if __name__ == '__main__':
-    from data_generator import DataGenSequence
-
     datagen = DataGenSequence('train')
     batch_inputs, batch_outputs = datagen.__getitem__(0)
 
-    for i in range(10):
-        image = batch_inputs[i]
-        netout = batch_outputs[i]
-        image = (image * 255.).astype(np.uint8)
-        image = image[:, :, ::-1]
-        cv.imwrite('images/imgaug_before_{}.png'.format(i), image)
-        boxes = decode_netout(netout, anchors, num_classes, score_threshold, iou_threshold)
-        print('boxes: ' + str(boxes))
-        image = draw_boxes(image, boxes)
-        cv.imwrite('images/imgaug_after_{}.png'.format(i), image)
+    image = batch_inputs[0]
+    target = batch_outputs[0]
+    image = (image * 255.).astype(np.uint8)
+    image = image[:, :, ::-1]
+    cv.imwrite('images/datagen_image.png', image)
+    sum = 0.0
+    for row in range(grid_h):
+        for col in range(grid_w):
+            for b in range(num_box):
+                sum += target[row, col, b, 0]
+
+    print(sum)
